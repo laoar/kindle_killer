@@ -231,7 +231,7 @@ class MobiBook
 		@crypto_type = crypto_type
 		if crypto_type == 0
 			put "This book is not encrypted!"
-			exit -1
+			exit false 
 		end
 
 		if @crypto_type != 2 && @crypto_type != 1
@@ -243,7 +243,7 @@ class MobiBook
 			val406 = data406.unpack('Q>')[0]
 			if val406 != 0
 				puts "Cannot decode library or rented ebooks!"
-				exit -1
+				exit false 
 			end
 		end
 
@@ -369,7 +369,7 @@ def argv_check
 	if ARGV.length != 2
 		puts "Usage:"
 		puts "./drm book_name serial_nume"
-		exit -1
+		exit false 
 	end
 end
 
