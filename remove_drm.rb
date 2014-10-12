@@ -316,9 +316,9 @@ class MobiBook
 		end
 
 		@mobi_data = ""
-		for i in 0...mobidataList.length do
-			@mobi_data << mobidataList[i]
-		end
+		mobidataList.each { |x|
+			@mobi_data << x
+		}
 
 		puts "Mission done!"
 	end
