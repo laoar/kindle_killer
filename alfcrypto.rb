@@ -7,12 +7,12 @@ def PC1(key, src, decryption=true)
     if key.length !=16
         print "Bad key length!\n"
         return nil
-	end	
+    end    
 
     wkey = []
     for i in 0...8 do 
-		wkey << (key[i*2].unpack('C')[0]<<8 | key[i*2+1].unpack('C')[0])
-	end
+        wkey << (key[i*2].unpack('C')[0]<<8 | key[i*2+1].unpack('C')[0])
+    end
 
     dst = ""
     for i in 0...src.length do
@@ -25,21 +25,21 @@ def PC1(key, src, decryption=true)
             sum2  = (sum2+sum1)&0xFFFF
             temp1 = (temp1*20021+1)&0xFFFF
             byteXorVal ^= temp1 ^ sum2
-		end
+        end
         curByte = src[i].ord
         if decryption == false
             keyXorVal = curByte * 257
-		end
+        end
 
         curByte = ((curByte ^ (byteXorVal >> 8)) ^ byteXorVal) & 0xFF
         if decryption == true
             keyXorVal = curByte * 257
-		end
+        end
         for j in 0...8
             wkey[j] ^= keyXorVal
-		end
+        end
         dst += curByte.chr
-	end
+    end
 
     return dst
 end
