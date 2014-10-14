@@ -361,27 +361,49 @@ def remove_drm(infile, token, do_overwrite)
     mb.processBook(pidlist)
     
     # creat drm removed file 
-    f = File.new(title+".mobi", "w")
+    f = File.new(title+"-nodrm"+".mobi", "w")
     f.syswrite(mb.mobi_data)
 end
 
 def argv_check
-    if ARGV.length != 2
-        puts "Usage:"
-        puts "./drm book_name serial_nume"
-        exit false 
-    end
+	help = ""
+	serial = ""
+	file = ""
+	$*.each { |x|
+		if x == '-s'
+			$s_index = true
+			$f_index = false
+		elsif x == '-f'
+			$f_index = true
+			$s_index = false
+		elsif x[0] != '-'
+			if $s_index == true
+				serial << x
+			elsif $f_index == true 
+				file << x
+			end
+		else
+			puts "Usage:"
+			puts "-s serial number of your kindle device"
+			puts "-f the file to decrypt"
+			exit false
+		end
+	}
+
+	if file == "" || serial == ""
+		puts "Pls. input the file name or kindle serial number"
+		exit false
+	end
+	if !File.exist?(file)
+		puts "No such file"
+		exit false
+	end
+	return file, serial
 end
 
 def main
-    argv_check
-    #Pls. take care. 
-    #The argv[1] is the serial number of Kindle.
-    #Pls. don't include ' ' in the serial number, 
-    #else they will be recognized as mutil argv.
-    tokent =  ARGV[1]
-
-    remove_drm(ARGV[0], ARGV[1], 0)
+    file, serial = argv_check
+    remove_drm(file, serial, 0)
 end
 
 # enter point
