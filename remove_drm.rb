@@ -366,39 +366,39 @@ def remove_drm(infile, token, do_overwrite)
 end
 
 def argv_check
-	help = ""
-	serial = ""
-	file = ""
-	$*.each { |x|
-		if x == '-s'
-			$s_index = true
-			$f_index = false
-		elsif x == '-f'
-			$f_index = true
-			$s_index = false
-		elsif x[0] != '-'
-			if $s_index == true
-				serial << x
-			elsif $f_index == true 
-				file << x
-			end
-		else
-			puts "Usage:"
-			puts "-s serial number of your kindle device"
-			puts "-f the file to decrypt"
-			exit false
-		end
-	}
+    help = ""
+    serial = ""
+    file = ""
+    $*.each { |x|
+        if x == '-s'
+            $s_index = true
+            $f_index = false
+        elsif x == '-f'
+            $f_index = true
+            $s_index = false
+        elsif x[0] != '-'
+            if $s_index == true
+                serial << x
+            elsif $f_index == true 
+                file << x
+            end
+        else
+            puts "Usage:"
+            puts "-s serial number of your kindle device"
+            puts "-f the file to decrypt"
+            exit false
+        end
+    }
 
-	if file == "" || serial == ""
-		puts "Pls. input the file name or kindle serial number"
-		exit false
-	end
-	if !File.exist?(file)
-		puts "No such file"
-		exit false
-	end
-	return file, serial
+    if file == "" || serial == ""
+        puts "Pls. input the file name or kindle serial number"
+        exit false
+    end
+    if !File.exist?(file)
+        puts "No such file"
+        exit false
+    end
+    return file, serial
 end
 
 def main
