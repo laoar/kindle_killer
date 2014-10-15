@@ -6,8 +6,9 @@
 
 # for sha1 algorithm
 require 'digest/sha1'
-require './kgenpids'
-require './alfcrypto'
+require './kgenpids'; include Genpid
+require './alfcrypto'; include Alf
+
 
 def getSizeOfTrailingDataEntries(ptr, size, flags)
     def getSizeOfTrailingDataEntry(ptr, size)
@@ -192,7 +193,7 @@ class MobiBook
 #keyascii = [114, 56, 51, 176, 180, 242, 227, 202, 223, 9, 1, 214, 226, 224, 63, 150]
         for pid in pidlist do
             bigpid = pid.ljust(16, "\0")
-            temp_key = PC1(keyvec1, bigpid, false)            
+            temp_key = Alf::PC1(keyvec1, bigpid, false)            
             temp_key_sum = 0
             for i in 0...temp_key.length do
                 temp_key_sum += temp_key[i].ord
@@ -203,7 +204,7 @@ class MobiBook
                 verification, size, type, cksum = data[i*0x30...i*0x30+0x10].unpack('NNNCxxx')
                 cookie = data[i*0x30+0x10...i*0x30+0x30]
                 if cksum == temp_key_sum
-                    cookie = PC1(temp_key, cookie)
+                    cookie = Alf::PC1(temp_key, cookie)
                     ver,flags = cookie.unpack('L>L>')
                     finalkey = cookie.slice(8, 16)
                     expiry,expiry2 = cookie.slice(24, 8).unpack('L>L>')
@@ -269,7 +270,7 @@ class MobiBook
                 bookkey_data = @sect[@mobi_length+16...@mobi_length+32]
             end
             pid = "00000000"
-            found_key = PC1(t1_keyvec, bookkey_data)
+            found_key = Alf::PC1(t1_keyvec, bookkey_data)
         elsif @crypto_type == 2 # 2
             drm_ptr, drm_count, drm_size, drm_flags = @sect[0xA8...0xA8+16].unpack('L>L>L>L>')
             found_key, pid = self.parseDRM(@sect[drm_ptr...drm_ptr+drm_size], drm_count, goodpids)
@@ -303,7 +304,7 @@ class MobiBook
                 print "."
             end
             #printf("record %d, extra_size %d\n", i,extra_size)
-            decoded_data = PC1(found_key, data[0...data.length - extra_size])
+            decoded_data = Alf::PC1(found_key, data[0...data.length - extra_size])
             mobidataList << decoded_data
             if extra_size > 0
                 mobidataList << data[-extra_size...data.length]
@@ -355,7 +356,7 @@ def remove_drm(infile, token, do_overwrite)
     title = mb.getBookTitle()
     puts "title:" + title
     md1, md2 = mb.getPIDMetaInfo()
-    getKindlePid(pidlist, md1, md2, serial)    
+    Genpid::getKindlePid(pidlist, md1, md2, serial)    
     print "Using PIDs:", pidlist, "\n"
 
     mb.processBook(pidlist)
@@ -366,20 +367,19 @@ def remove_drm(infile, token, do_overwrite)
 end
 
 def argv_check
-    help = ""
     serial = ""
     file = ""
     $*.each { |x|
         if x == '-s'
-            $s_index = true
-            $f_index = false
+            @@s_index = true
+            @@f_index = false
         elsif x == '-f'
-            $f_index = true
-            $s_index = false
+            @@f_index = true
+            @@s_index = false
         elsif x[0] != '-'
-            if $s_index == true
+            if @@s_index == true
                 serial << x
-            elsif $f_index == true 
+            elsif @@f_index == true 
                 file << x
             end
         else
@@ -401,11 +401,7 @@ def argv_check
     return file, serial
 end
 
-def main
-    file, serial = argv_check
-    remove_drm(file, serial, 0)
-end
-
-# enter point
-main
+# Here we go.
+file, serial = argv_check()
+remove_drm(file, serial, 0)
 
