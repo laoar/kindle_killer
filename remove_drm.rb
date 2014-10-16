@@ -10,8 +10,8 @@ require './kgenpids'; include Genpid
 require './alfcrypto'; include Alf
 
 
-def getSizeOfTrailingDataEntries(ptr, size, flags)
-    def getSizeOfTrailingDataEntry(ptr, size)
+def get_size_of_trailing_data_entries(ptr, size, flags)
+    def get_size_of_trailing_data_entry(ptr, size)
         bitpos, result = 0, 0
         if size <= 0
             return result
@@ -33,7 +33,7 @@ def getSizeOfTrailingDataEntries(ptr, size, flags)
     testflags = flags >> 1
     while testflags != 0 
         if testflags & 1
-            num += getSizeOfTrailingDataEntry(ptr, size - num)
+            num += get_size_of_trailing_data_entry(ptr, size - num)
         end
         testflags >>= 1
     end
@@ -164,7 +164,7 @@ class MobiBook
         for i in 1...@records+1 do
             data = load_section(i)
             extra_size = 0
-            extra_size = getSizeOfTrailingDataEntries(data, data.length, @extra_data_flags)
+            extra_size = get_size_of_trailing_data_entries(data, data.length, @extra_data_flags)
             if i%10 == 0
                 print "."
             end
