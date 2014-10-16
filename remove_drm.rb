@@ -197,7 +197,7 @@ class MobiBook
         @mobi_data
     end
 
-	private
+    private
     def load_section(index)
         if index + 1 == @num_sections
             endoff = @size
