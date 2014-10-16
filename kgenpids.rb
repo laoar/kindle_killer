@@ -4,43 +4,43 @@ require 'zlib'  # use crc32 in zlib
 
 module Genpid
 
-    @@charMap3 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-    @@charMap4 = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789"
+    @@char_map3 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    @@char_map4 = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789"
 
     # Returns two bit at offset from a bit field
-    def getTwoBitsFromBitField(bitField,offset)
-        byteNumber = offset / 4
-        bitPosition = 6 - 2*(offset % 4)
+    def get_two_bits_from_bit_field(bit_field, offset)
+        byte_num = offset / 4
+        bit_pos = 6 - 2*(offset % 4)
 
-        return bitField[byteNumber].ord >> bitPosition & 3
+        return bit_field[byte_num].ord >> bit_pos & 3
     end
 
     # Returns the six bits at offset from a bit field
-    def getSixBitsFromBitField(bitField, offset)
+    def get_six_bits_from_bit_field(bit_field, offset)
         offset *= 3
-        value = (getTwoBitsFromBitField(bitField,offset) <<4) + (getTwoBitsFromBitField(bitField,offset+1) << 2) +getTwoBitsFromBitField(bitField,offset+2)
+        value = (get_two_bits_from_bit_field(bit_field,offset) <<4) + (get_two_bits_from_bit_field(bit_field,offset+1) << 2) +get_two_bits_from_bit_field(bit_field,offset+2)
     
         return value
     end
 
-    def encodePID(hash)
+    def encode_pid(hash)
         pid = ''
         for position in 0...8
-            pid += @@charMap3[getSixBitsFromBitField(hash, position)]
+            pid += @@char_map3[get_six_bits_from_bit_field(hash, position)]
         end
 
         return pid    
     end
 
-    def checksumPid(s)
+    def checksum_pid(s)
         crc = (~Zlib::crc32(s, -1)) & 0xFFFFFFFF
         crc = crc ^ (crc >> 16)
         res = s
-        l = @@charMap4.length
+        l = @@char_map4.length
         for i in 0..1
             b = crc & 0xff
             pos = (b / l) ^ (b % l)
-            res += @@charMap4[pos%l]
+            res += @@char_map4[pos%l]
             crc >>= 8
         end
 
@@ -48,11 +48,11 @@ module Genpid
     end
 
     # Parse the EXTH header records and use the Kindle serial number to calculate the book pid.
-    def getKindlePid(pidlist, rec209, token, serialnum)
-        pidHash = Digest::SHA1.digest(serialnum+rec209+token)
-        bookPID = encodePID(pidHash)
-        bookPID = checksumPid(bookPID)
-        pidlist << bookPID
+    def get_kindle_pid(pidlist, rec209, token, serialnum)
+        pidhash = Digest::SHA1.digest(serialnum+rec209+token)
+        bookpid = encode_pid(pidhash)
+        bookpid = checksum_pid(bookpid)
+        pidlist << bookpid
 
         return pidlist
     end

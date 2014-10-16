@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 module Alf
-    def PC1(key, src, decryption=true)
+    def pc1(key, src, decryption=true)
         sum1 = 0
         sum2 = 0
         keyXorVal = 0
