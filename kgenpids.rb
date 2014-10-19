@@ -48,12 +48,10 @@ module Genpid
     end
 
     # Parse the EXTH header records and use the Kindle serial number to calculate the book pid.
-    def get_kindle_pid(pidlist, rec209, token, serialnum)
-        pidhash = Digest::SHA1.digest(serialnum+rec209+token)
+    def get_kindle_pid(pidlist, tamper_proof_key, token, serialnum)
+        pidhash = Digest::SHA1.digest(serialnum + tamper_proof_key + token)
         bookpid = encode_pid(pidhash)
         bookpid = checksum_pid(bookpid)
         pidlist << bookpid
-
-        return pidlist
     end
 end
